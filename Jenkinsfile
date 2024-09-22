@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/samhith-raj/commerconnect.git'
+                git 'https://github.com/samhith-raj/commerconnect.git'
             }
         }
         
@@ -22,8 +22,8 @@ pipeline {
         
         stage('Build Docker Images') {
             steps {
-                sh 'docker build -t commerconnect-backend:latest ./backend'
-                sh 'docker build -t commerconnect-frontend:latest ./frontend'
+                sh 'docker build -t samhithraj/commerconnect-backend:latest ./backend'
+                sh 'docker build -t samhithraj/commerconnect-frontend:latest ./frontend'
             }
         }
         
@@ -31,8 +31,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASS')]) {
                     sh 'docker login -u samhithraj -p $DOCKERHUB_PASS'
-                    sh 'docker tag commerconnect-backend:latest samhithraj/commerconnect-backend:latest'
-                    sh 'docker tag commerconnect-frontend:latest samhithraj/commerconnect-frontend:latest'
                     sh 'docker push samhithraj/commerconnect-backend:latest'
                     sh 'docker push samhithraj/commerconnect-frontend:latest'
                 }
@@ -41,7 +39,13 @@ pipeline {
         
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
+                script {
+                    echo 'Deploying to Kubernetes...'
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                        sh 'kubectl --kubeconfig=$KUBECONFIG apply -f k8s/backend-deployment.yaml'
+                        sh 'kubectl --kubeconfig=$KUBECONFIG apply -f k8s/frontend-deployment.yaml'
+                    }
+                }
             }
         }
     }
