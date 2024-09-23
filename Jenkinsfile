@@ -29,8 +29,8 @@ pipeline {
         
         stage('Push Docker Images') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASS')]) {
-                    sh 'docker login -u samhithraj -p $DOCKERHUB_PASS'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS'
                     sh 'docker push samhithraj/commerconnect-backend:latest'
                     sh 'docker push samhithraj/commerconnect-frontend:latest'
                 }
