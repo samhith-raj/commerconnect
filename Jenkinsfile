@@ -31,8 +31,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
                     sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS'
-                    sh 'docker push --max-concurrent-uploads=1 samhithraj/commerconnect-backend:latest'
-                    sh 'docker push --max-concurrent-uploads=1 samhithraj/commerconnect-frontend:latest'
+                    sh 'docker push samhithraj/commerconnect-backend:latest'
+                    sh 'docker push samhithraj/commerconnect-frontend:latest'
                 }
             }
         }
